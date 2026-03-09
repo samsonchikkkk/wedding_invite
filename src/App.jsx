@@ -1056,7 +1056,7 @@ export default function App() {
                               className="flex justify-end w-full"
                             >
                               <img
-                                src={`/icons/${event.icon}.svg`}
+                                src={`./icons/${event.icon}.svg`}
                                 alt=""
                                 className="w-16 h-12 object-contain"
                               />
@@ -1105,7 +1105,7 @@ export default function App() {
                               className="flex justify-start w-full"
                             >
                               <img
-                                src={`/icons/${event.icon}.svg`}
+                                src={`./icons/${event.icon}.svg`}
                                 alt=""
                                 className="w-16 h-12 object-contain"
                               />
