@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -31,7 +32,8 @@ const allImages = [
   './images/together.png',        // 5 - together
   './images/proposal.png',        // 6 - proposal
   './images/invitation.png',      // 7 - invitation
-  './images/venue.png',           // 8 - venue
+  './images/venue.png',
+  './images/dance.png',           
 ]
 
 // Карта: какие картинки нужны для какого экрана
@@ -45,6 +47,7 @@ const screenImages = {
   6: ['./images/proposal.png'],
   7: ['./images/invitation.png'],
   8: ['./images/venue.png'],
+  9: ['./images/dance.png'],
 }
 
 const loadedImages = new Set()
@@ -69,7 +72,7 @@ const preloadScreen = (screenIndex) => {
 // ===== КОНЕЦ PRELOAD =====
 
 // Google Sheets API
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrJZh400sy4K-AoMhTzGgd_3TqE63YGv__NP30Cq5hrYm31csZw247FGnmC6HjoxlR/exec'
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyl9CVwxbi5icXAyAZLlomkE4ezPtV35hJcVzbYOwIQNv2DwtGDJoE1tcLufn9za4RD6Q/exec'
 
 // Получаем имена гостей из URL
 // Формат: ?guest=имя-фамилия или ?guest=имя-фамилия,имя-фамилия (для пар)
@@ -116,7 +119,8 @@ const screens = [
   'together',        // 6
   'proposal',        // 7
   'invitation',      // 8
-  'venue',           // 9
+  'venue',
+  'schedule',           // 9
   'preparation',     // 10
   'cheatsheet',      // 11
   'rsvp'             // 12
@@ -300,16 +304,13 @@ export default function App() {
   const [displayDays, setDisplayDays] = useState(0)
   
   // RSVP форма — автозаполнение для пар
+  const [showForm, setShowForm] = useState(false)
+  const [responseType, setResponseType] = useState(null) // 'accept' или 'decline'
   const [formData, setFormData] = useState({
-    name: guests.guest1,
-    rating: null,
-    withGuest: guests.hasCouple,
-    guestName: guests.guest2,
-    food: [],
-    alcohol: [],
-    transport: '',
-    accommodation: false,
-  })
+  name: guests.guest1,
+  alcohol: [],
+  allergies: '',
+})
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
@@ -344,7 +345,7 @@ export default function App() {
   useEffect(() => {
     if (currentScreen === 5) {
       let current = 0
-      const target = 730
+      const target = 2034
       const increment = target / 60
       const timer = setInterval(() => {
         current += increment
@@ -419,7 +420,10 @@ export default function App() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+    const dataToSend = {
+    ...formData,
+    responseType: 'accept',
+  };
     try {
       await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
@@ -436,7 +440,7 @@ export default function App() {
   }
 
   const getRatingColor = (value) => {
-    if (value >= 6) return '#5C6B4A'
+    if (value >= 6) return '#4c583d'
     if (value >= 3) return '#C9A227'
     return '#722F37'
   }
@@ -450,7 +454,7 @@ export default function App() {
 
   // Подсчёт дней до свадьбы
   const getDaysUntilWedding = () => {
-    const wedding = new Date('2026-08-30')
+    const wedding = new Date('2026-06-29')
     const today = new Date()
     const diff = Math.ceil((wedding - today) / (1000 * 60 * 60 * 24))
     return diff > 0 ? diff : 0
@@ -514,7 +518,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="font-serif text-[1.5rem] text-chocolate mb-6"
+                className="font-serif text-[1.5rem] text-chocolate mb-6 text-center"
               >
                 Тут кое-что намечается
               </motion.p>
@@ -522,9 +526,9 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="font-serif text-[4rem] font-semibold text-chocolate leading-none tracking-tight"
+                className="font-serif text-[4rem] font-semibold text-chocolate leading-none tracking-tight text-center"
               >
-                30.08.2026
+                29.06.2026
               </motion.p>
             </div>
             
@@ -549,7 +553,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  onClick={() => setCurrentScreen(11)}
+                  onClick={() => setCurrentScreen(1)}
                   className="font-serif text-sm text-chocolate/60 hover:text-marsala underline underline-offset-2 transition-colors"
                 >
                   сразу к&nbsp;форме →
@@ -573,6 +577,7 @@ export default function App() {
               src="./images/story-start.png"
               alt=""
               className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+              style={{ objectPosition: 'left 100%'  }}
             />
             {/* Градиент слева для текста */}
             <div className="absolute inset-0 bg-gradient-to-r from-cream/95 via-cream/70 to-transparent z-0" />
@@ -584,7 +589,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="font-hand text-marsala text-[1.5rem] mb-8"
               >
-                май 2023
+                зима 2018
               </motion.p>
 
               <motion.div
@@ -611,7 +616,7 @@ export default function App() {
                   transition={{ delay: 0.5 }}
                 >
                   <p className="font-serif text-[1.1rem] text-chocolate/80 mb-5">
-                    Она впервые увидела его фото и&nbsp;подумала:
+                    Она впервые увидела его и&nbsp;подумала:
                   </p>
                   <div className="flex flex-col gap-3">
                     {['Интересно...', 'Может быть', 'Точно нет'].map((answer, i) => (
@@ -639,10 +644,10 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                 >
                   <p className="font-serif text-[1.1rem] text-chocolate/80 mb-4">
-                    Она впервые увидела его фото и&nbsp;подумала:
+                    Она впервые увидела его и&nbsp;подумала:
                   </p>
                   <p className="font-serif text-[2.5rem] font-semibold text-marsala italic">
-                    «Точно нет»
+                    «Точно нет, ведь он слишком молод»
                   </p>
                 </motion.div>
               )}
@@ -660,11 +665,16 @@ export default function App() {
             className="h-full w-full relative"
           >
             {/* Фоновая картинка на весь экран — смещена вниз */}
-            <FadeImage
-              src="./images/first-meeting.png"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none z-0"
-            />
+           <FadeImage
+  src="./images/first-meeting.png"
+  alt=""
+  className="absolute inset-0 w-full h-full pointer-events-none z-0"
+  style={{
+    objectFit: 'cover',
+    objectPosition: 'top 0%',
+    transform: 'scale(1)', // если нужно ещё и увеличить
+  }}
+/>
             {/* Градиент сверху для текста */}
             <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/70 to-transparent z-0" />
             
@@ -673,9 +683,9 @@ export default function App() {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="font-hand text-marsala text-[1.5rem] mb-8"
+                className="font-hand text-marsala text-[1.5rem] mb-8  "
               >
-                9 декабря 2023
+                Осень 2019
               </motion.p>
 
               <motion.div
@@ -684,121 +694,62 @@ export default function App() {
                 transition={{ delay: 0.3 }}
               >
                 <p className="font-serif text-[1.5rem] font-medium text-chocolate mb-3">
-                  Он зашёл в&nbsp;квартиру
+                  Они пошли гулять по&nbsp;лесу
                 </p>
-                <p className="font-serif text-[2rem] font-semibold text-chocolate leading-tight">
-                  Ещё до&nbsp;приветствия
+                <p className="font-serif text-[2rem] font-semibold text-chocolate leading-tight ">
+                  Ещё до&nbsp;утра
                 </p>
-                <p className="font-serif text-[2rem] font-semibold text-marsala leading-tight">
-                  она всё поняла
+                <p className="font-serif text-[2rem] font-semibold text-marsala leading-tight ">
+                  они всё поняли
                 </p>
               </motion.div>
             </div>
           </motion.div>
         )}
+ 
+{/* ========== ЭКРАН 4: HIGHFIVE ========== */}
+{currentScreen === 3 && (
+  <motion.div
+    key="highfive"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full relative"
+  >
+    <FadeImage
+      src="./images/dance.png"
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      style={{ opacity: 0.1 }}
+    />
+    {!showHighfiveResult ? (
+      // До ответа — текст сверху и снизу
+      <>
+        <motion.p
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-8 left-10 transform -translate-x-1/2 font-hand text-white text-[1.5rem] z-20"
+          style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)' }}
+        >
+          месяц спустя
+        </motion.p>
 
-        {/* ========== ЭКРАН 4: HIGHFIVE ========== */}
-        {currentScreen === 3 && (
-          <motion.div
-            key="highfive"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="h-full w-full relative"
-          >
-            {!showHighfiveResult ? (
-              // До ответа — чистый фон
-              <div className="h-full flex flex-col justify-center px-6">
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="font-hand text-marsala text-[1.5rem] mb-8"
-                >
-                  минуту спустя
-                </motion.p>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <p className="font-serif text-[1.75rem] font-medium text-chocolate mb-3">
-                    Их первое взаимодействие
-                  </p>
-                  <p className="font-serif text-[1.25rem] text-chocolate/80 mb-8">
-                    Нужно поздороваться. Как они это сделали?
-                  </p>
-                  <div className="flex gap-4">
-                    {[
-                      { id: 'handshake', img: './images/handshake-btn.png', label: 'Рукопожатие' },
-                      { id: 'highfive', img: './images/highfive-btn.png', label: 'Дай пять' },
-                    ].map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => handleHighfiveAnswer(option.id)}
-                        disabled={highfiveAnswer !== null}
-                        className={`relative border-2 rounded-xl transition-all overflow-hidden ${
-                          highfiveAnswer === option.id
-                            ? 'border-marsala'
-                            : 'border-chocolate hover:border-marsala'
-                        } ${highfiveAnswer && highfiveAnswer !== option.id ? 'opacity-40' : ''}`}
-                      >
-                        <FadeImage 
-                          src={option.img} 
-                          alt={option.label}
-                          className="w-36 h-36 object-cover"
-                        />
-                        {/* Надпись поверх картинки */}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-chocolate/80 to-transparent py-3 px-2">
-                          <span className="font-serif text-[0.9rem] text-cream">
-                            {option.label}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              </div>
-            ) : (
-              // После ответа — картинка на весь экран
-              <>
-                <FadeImage
-                  src="./images/highfive-result.png"
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-cream/90 via-transparent to-cream/90 z-0" />
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="relative z-10 h-full flex flex-col justify-between py-16 px-6"
-                >
-                  <div>
-                    <p className="font-hand text-marsala text-[1.5rem] mb-6">
-                      минуту спустя
-                    </p>
-                    <p className="font-serif text-[1.5rem] text-chocolate mb-2">
-                      Она протянула руку,
-                    </p>
-                    <p className="font-serif text-[1.5rem] text-chocolate">
-                      а&nbsp;он — дал пять
-                    </p>
-                  </div>
-                  
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="font-hand text-[2rem] text-olive text-center"
-                  >
-                    Вышло идеально
-                  </motion.p>
-                </motion.div>
-              </>
-            )}
-          </motion.div>
-        )}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="absolute bottom-20 left-39 transform -translate-x-1/2 font-hand text-cream text-[1.75rem] font-medium text-center z-20"
+          style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)' }}
+        >
+          Их первый медленный&nbsp;танец
+        </motion.p>
+      </>
+    ) : (
+      // После ответа — картинка на весь экран (пока пусто)
+      <></>
+    )}
+  </motion.div>
+)}
 
         {/* ========== ЭКРАН 5: LAUGHTER ========== */}
         {currentScreen === 4 && (
@@ -841,62 +792,64 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* ========== ЭКРАН 6: TOGETHER ========== */}
-        {currentScreen === 5 && (
-          <motion.div
-            key="together"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="h-full w-full relative"
-          >
-            {/* Фоновая картинка — смещена ещё ниже */}
-            <FadeImage
-              src="./images/together.png"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-              style={{ objectPosition: 'center 75%' }}
-            />
-            {/* Градиент сверху */}
-            <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/60 to-transparent z-0" />
-            
-            {/* Контент сверху */}
-            <div className="relative z-10 pt-12 px-6">
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="font-serif text-[5rem] font-semibold text-chocolate leading-none tracking-tight"
-              >
-                {displayDays}
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="font-hand text-olive text-[1.5rem] mt-1 mb-6"
-              >
-                дней вместе
-              </motion.p>
+{/* ========== ЭКРАН 6: TOGETHER ========== */}
+{currentScreen === 5 && (
+  <motion.div
+    key="together"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full relative"
+  >
+    {/* Фоновая картинка */}
+    <FadeImage
+      src="./images/together.png"
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      style={{ objectPosition: 'center 75%' }}
+    />
+    {/* Градиент для читаемости текста сверху и снизу */}
+    <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/40 to-cream/80 z-0" />
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <p className="font-serif text-[1.25rem] font-medium text-chocolate mb-1">
-                  С&nbsp;того дня прошло 2&nbsp;года
-                </p>
-                <p className="font-serif text-[1.1rem] text-chocolate/80 mb-4">
-                  Ни&nbsp;одного дня друг без&nbsp;друга
-                </p>
-                <p className="font-hand text-[1.75rem] text-marsala italic">
-                  И&nbsp;что дальше?
-                </p>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
+    {/* Верхний блок с числом дней */}
+    <div className="absolute top-12 left-0 right-0 z-10 px-6 text-center">
+      <motion.p
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="font-serif text-[5rem] font-semibold text-chocolate leading-none tracking-tight"
+      >
+        {displayDays}
+      </motion.p>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="font-hand text-olive text-[1.5rem] mt-1"
+      >
+        дней вместе
+      </motion.p>
+    </div>
 
+    {/* Нижний блок с фразами */}
+    <div className="absolute bottom-8 left-0 right-0 z-10 px-6 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <p className="font-serif text-[1.25rem] font-medium text-chocolate mb-1">
+          С&nbsp;того дня прошло 5,5&nbsp;лет
+        </p>
+        <p className="font-serif text-[1.1rem] text-chocolate/80 mb-4">
+          И&nbsp;каждый день с мыслями друг о&nbsp;друге
+        </p>
+        <p className="font-hand text-[1.75rem] text-marsala italic">
+          И&nbsp;что дальше?
+        </p>
+      </motion.div>
+    </div>
+  </motion.div>
+)}
         {/* ========== ЭКРАН 7: PROPOSAL (КУЛЬМИНАЦИЯ) ========== */}
         {currentScreen === 6 && (
           <motion.div
@@ -927,7 +880,7 @@ export default function App() {
                 transition={{ delay: 0.3 }}
                 className="font-hand text-gold text-[1.5rem] mb-6"
               >
-                декабрь 2025
+                май 2025
               </motion.p>
 
               <motion.p
@@ -936,7 +889,7 @@ export default function App() {
                 transition={{ delay: 0.5 }}
                 className="font-serif text-[1.25rem] text-white/85 mb-6"
               >
-                Загородный дом. Гирлянды. Танец.
+                Китай. Гора. Закат.
               </motion.p>
 
               <motion.div
@@ -962,7 +915,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="h-full w-full relative flex items-center"
+            className="h-full w-full relative flex items-end pb-28 "
           >
             {/* Рамка на весь экран */}
             <motion.img
@@ -980,7 +933,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="font-hand text-marsala text-[1.5rem] mb-4"
+                className="font-hand text-marsala text-[1.5rem] mb-4  "
               >
                 Это была история про&nbsp;нас
               </motion.p>
@@ -991,7 +944,7 @@ export default function App() {
                 transition={{ delay: 1 }}
                 className="font-hand text-[2.5rem] text-olive italic mb-4"
               >
-                Софья и&nbsp;Сергей
+                Павел и&nbsp;Екатерина
               </motion.p>
               
               <motion.p
@@ -1000,7 +953,7 @@ export default function App() {
                 transition={{ delay: 1.5, duration: 0.5 }}
                 className="font-serif text-[3.5rem] font-semibold text-chocolate leading-none tracking-tight mb-6"
               >
-                30.08.2026
+                29.06.2026
               </motion.p>
 
               <motion.div
@@ -1019,130 +972,278 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* ========== ЭКРАН 9: VENUE ========== */}
-        {currentScreen === 8 && (
-          <motion.div
-            key="venue"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="h-full w-full relative"
-          >
-            {/* Background */}
-            <motion.img
-              initial={{ scale: 1.05, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.2 }}
-              src="./images/venue.png"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-chocolate/95 via-chocolate/40 to-transparent" />
+       {/* ========== ЭКРАН 9: VENUE ========== */}
+{currentScreen === 8 && (
+  <motion.div
+    key="venue"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full relative"
+  >
+    {/* Background */}
+    <motion.img
+      initial={{ scale: 1.05, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 1.2 }}
+      src="./images/venue.png"
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-chocolate/95 via-chocolate/40 to-transparent" />
 
-            {/* Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 pb-12 z-10">
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="font-hand text-gold text-[1.5rem] mb-4"
-              >
-                И&nbsp;мы уже знаем, где это случится
-              </motion.p>
+    {/* Фраза сверху */}
+    <motion.p
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="absolute top-10 left-6 right-6 z-20 font-hand font-semibold text-gold text-[2.0rem] [text-shadow:2px_2px_0_#8B5A2B,_-2px_-2px_0_#8B5A2B,_2px_-2px_0_#8B5A2B,_-2px_2px_0_#8B5A2B]"
+    >
+      И&nbsp;мы уже знаем, где это случится
+    </motion.p>
 
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="font-serif text-[3rem] font-semibold text-white leading-none mb-4 drop-shadow-lg"
-              >
-                Due To Love
-              </motion.h2>
+    {/* Контент снизу (без дублирования фразы) */}
+    <div className="absolute bottom-0 left-0 right-0 p-6 pb-12 z-10">
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="font-serif text-[3rem] font-semibold text-white leading-none mb-4 drop-shadow-lg"
+      >
+        Пасторское озеро
+      </motion.h2>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="font-serif text-[1.25rem] text-white/90 max-w-lg mb-4 leading-relaxed"
-              >
-                Место, где природа встречается с&nbsp;уютом.<br/>
-                Где можно выдохнуть и&nbsp;просто быть рядом.
-              </motion.p>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="font-serif text-[1.25rem] text-white/90 max-w-lg mb-4 leading-relaxed"
+      >
+        Место, где природа встречается с&nbsp;уютом.<br/>
+        Где можно выдохнуть и&nbsp;просто быть рядом.
+      </motion.p>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="flex flex-col gap-1"
-              >
-                <p className="font-serif text-[1.5rem] text-white font-semibold">
-                  18+
-                </p>
-                <p className="font-serif text-[1rem] text-white/70">
-                  Москва, 15&nbsp;км от&nbsp;МКАД · можно с&nbsp;парой
-                </p>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="flex flex-col gap-1"
+      >
+        <p className="font-serif text-[1.5rem] text-white font-semibold">
+          18+
+        </p>
+        <p className="font-serif text-[1rem] text-white/70">
+          Санкт-Петербург, Выборгское ш.,&nbsp;39 км
+        </p>
+      </motion.div>
+    </div>
+  </motion.div>
+)}
+{/* ========== ЭКРАН 9: SCHEDULE (РАСПИСАНИЕ) ========== */}
+{currentScreen === 9 && (
+  <motion.div
+    key="schedule"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full relative overflow-y-auto px-4 py-2.5"
+  >
+    {/* Заголовок */}
+    <motion.h2
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.1 }}
+      className="font-hand text-marsala text-[2.5rem] mb-4 text-center"
+    >
+      Расписание дня
+    </motion.h2>
 
-        {/* ========== ЭКРАН 10: PREPARATION ========== */}
-        {currentScreen === 9 && (
-          <motion.div
-            key="preparation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="h-full w-full flex flex-col justify-center px-6"
-          >
-            {/* Countdown */}
-            <div className="mb-6">
-              <p className="font-serif text-olive text-lg uppercase tracking-widest mb-1">
-                До встречи осталось
-              </p>
-              <p className="font-serif text-[4rem] font-semibold text-chocolate leading-none">
-                {getDaysUntilWedding()}
-              </p>
-              <p className="font-hand text-olive text-[1.75rem]">дней</p>
-            </div>
+    {/* Контейнер с вертикальной линией */}
+    <div className="relative">
+      {/* Вертикальная линия (анимированное появление) */}
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: '100%', opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
+        className="absolute left-1/2 top-0 w-0.5 bg-chocolate/30 -translate-x-1/2"
+        style={{ transformOrigin: 'top' }}
+      />
 
-            {/* Контент без плиток — КРУПНЫЕ шрифты */}
-            <div className="space-y-6">
-              {/* Что надеть */}
-              <div>
-                <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">Что надеть</p>
-                <p className="font-serif text-chocolate/80 text-[1.4rem] mb-3">Приходите в&nbsp;этих оттенках:</p>
-                <div className="flex gap-4">
-                  <span className="w-12 h-12 rounded-full bg-[#722F37] border-2 border-chocolate/30" />
-                  <span className="w-12 h-12 rounded-full bg-[#5C6B4A] border-2 border-chocolate/30" />
-                  <span className="w-12 h-12 rounded-full bg-[#F5F0E6] border-2 border-chocolate/30" />
-                  <span className="w-12 h-12 rounded-full bg-[#6B8E9F] border-2 border-chocolate/30" />
-                  <span className="w-12 h-12 rounded-full bg-[#3D2B1F] border-2 border-chocolate/30" />
-                </div>
-                <p className="font-hand text-olive text-[1.25rem] mt-2">Строгой проверки не&nbsp;будет</p>
+      {/* Сетка для событий */}
+      <div className="grid grid-cols-[1fr_auto_1fr] gap-y-6 relative z-10">
+        {[
+          { time: '14:30', desc: 'Трансфер от метро «Беговая»', icon: 'bus' },
+          { time: '15:30', desc: 'Сбор гостей', icon: 'guests' },
+          { time: '16:00', desc: 'Начало церемонии', icon: 'ceremony' },
+          { time: '17:00', desc: 'Банкет', icon: 'banquet' },
+          { time: '20:00', desc: 'Торт', icon: 'cake' },
+          { time: '21:00', desc: 'Дискотека', icon: 'disco' },
+          { time: '22:30', desc: 'Окончание', icon: 'end' },
+        ].map((event, index) => {
+          const isLeft = index % 2 === 0 // чётные слева, нечётные справа
+
+          return (
+            <React.Fragment key={index}>
+              {/* Левая колонка */}
+              <div className="flex items-center h-12">
+                {isLeft ? (
+                  // Левые события: карточка + линия (прижаты к правому краю)
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="flex items-center justify-end w-full gap-2"
+                  >
+                    {/* Карточка события */}
+                    <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-chocolate/10 max-w-[140px]">
+                      <p className="font-serif font-semibold text-olive text-sm">{event.time}</p>
+                      <p className="font-serif text-chocolate text-xs leading-tight">{event.desc}</p>
+                    </div>
+                    {/* Горизонтальная линия, занимающая всё пространство до центра */}
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                      style={{ transformOrigin: 'right' }}
+                      className="h-0.5 bg-chocolate/30 flex-1"
+                    />
+                  </motion.div>
+                ) : (
+                  // Правые события: иконка (прижата к правому краю левой колонки)
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="flex justify-end w-full"
+                  >
+                    <img
+                      src={`/icons/${event.icon}.svg`}
+                      alt=""
+                      className="w-16 h-12 object-contain"
+                    />
+                  </motion.div>
+                )}
               </div>
-              
-              {/* Подарки */}
-              <div>
-                <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">Подарки</p>
-                <p className="font-serif text-chocolate/80 text-[1.4rem]">
-                  Мы&nbsp;мечтаем о&nbsp;своём жилье. Благодарны любому вкладу, который приблизит нас к&nbsp;этому.
-                </p>
+
+              {/* Центральная колонка (кружок) */}
+              <div className="flex items-center justify-center h-12">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 + index * 0.1, type: 'spring' }}
+                  className="w-4 h-4 rounded-full bg-marsala border-2 border-cream shadow-md z-20"
+                />
               </div>
-              
-              {/* Что взять */}
-              <div>
-                <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">Что взять с&nbsp;собой</p>
-                <p className="font-serif text-chocolate/80 text-[1.4rem]">
-                  Хорошее настроение, сменную обувь для танцев и&nbsp;что-то тёплое на&nbsp;вечер.
-                </p>
-                <p className="font-hand text-olive text-[1.25rem] mt-2">Зонты, аптечки и&nbsp;всё на&nbsp;случай «а&nbsp;вдруг» — у&nbsp;нас есть</p>
+
+              {/* Правая колонка */}
+              <div className="flex items-center h-12">
+                {!isLeft ? (
+                  // Правые события: линия + карточка (прижаты к левому краю)
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="flex items-center justify-start w-full gap-2"
+                  >
+                    {/* Горизонтальная линия, занимающая всё пространство от центра */}
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                      style={{ transformOrigin: 'left' }}
+                      className="h-0.5 bg-chocolate/30 flex-1"
+                    />
+                    {/* Карточка события */}
+                    <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-chocolate/10 max-w-[140px]">
+                      <p className="font-serif font-semibold text-olive text-sm">{event.time}</p>
+                      <p className="font-serif text-chocolate text-xs leading-tight">{event.desc}</p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  // Левые события: иконка (прижата к левому краю правой колонки)
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="flex justify-start w-full"
+                  >
+                    <img
+                      src={`/icons/${event.icon}.svg`}
+                      alt=""
+                      className="w-16 h-12 object-contain"
+                    />
+                  </motion.div>
+                )}
               </div>
-            </div>
-          </motion.div>
-        )}
+            </React.Fragment>
+          )
+        })}
+      </div>
+    </div>
+
+    {/* Подпись внизу */}
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.2 }}
+      className="font-hand text-olive text-[1.25rem] mt-8 text-center italic"
+    >
+      Время примерное, но мы постараемся не задерживать
+    </motion.p>
+  </motion.div>
+)}
+
+
+{/* Экран 10  */}
+
+{currentScreen === 10 && (
+  <motion.div
+    key="preparation"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full flex flex-col justify-start px-6 py-8"
+  >
+    {/* Счётчик дней */}
+    <div className="mb-8">
+      <p className="font-serif text-olive text-lg uppercase tracking-widest mb-1">
+        До встречи осталось
+      </p>
+      <p className="font-serif text-[4rem] font-semibold text-chocolate leading-none">
+        {getDaysUntilWedding()}
+      </p>
+      <p className="font-hand text-olive text-[1.75rem]">дней</p>
+    </div>
+
+    {/* Два блока информации */}
+    <div className="space-y-8">
+      {/* Что надеть */}
+      <div>
+        <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">Что надеть</p>
+        <p className="font-serif text-chocolate/80 text-[1.4rem] mb-3">Приходите в этих оттенках:</p>
+        <div className="flex gap-4">
+          <span className="w-12 h-12 rounded-full bg-[#722F37] border-2 border-chocolate/30" />
+          <span className="w-12 h-12 rounded-full bg-[#5C6B4A] border-2 border-chocolate/30" />
+          <span className="w-12 h-12 rounded-full bg-[#F5F0E6] border-2 border-chocolate/30" />
+          <span className="w-12 h-12 rounded-full bg-[#6B8E9F] border-2 border-chocolate/30" />
+          <span className="w-12 h-12 rounded-full bg-[#3D2B1F] border-2 border-chocolate/30" />
+        </div>
+        <p className="font-hand text-olive text-[1.25rem] mt-2">Строгой проверки не будет</p>
+      </div>
+
+      {/* Подарки */}
+      <div>
+        <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">Подарки</p>
+        <p className="font-serif text-chocolate/80 text-[1.4rem]">
+          Мы мечтаем о большом путешествии. Благодарны любому вкладу, который приблизит нас к этому.
+        </p>
+      </div>
+    </div>
+  </motion.div>
+)}
 
         {/* ========== ЭКРАН 11: CHEATSHEET ========== */}
-        {currentScreen === 10 && (
+        {currentScreen === 11 && (
           <motion.div
             key="cheatsheet"
             initial={{ opacity: 0 }}
@@ -1157,20 +1258,20 @@ export default function App() {
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="font-serif text-olive text-sm uppercase tracking-wide mb-2">Когда</p>
                 <p className="font-serif text-chocolate text-[1.25rem] font-semibold leading-tight">
-                  30&nbsp;августа
+                  29&nbsp;июня
                 </p>
-                <p className="font-serif text-chocolate text-[1rem]">воскресенье</p>
-                <p className="font-serif text-chocolate/70 text-[0.9rem] mt-2">14:30 — 22:30</p>
+                <p className="font-serif text-chocolate text-[1rem]">понедельник</p>
+                <p className="font-serif text-chocolate/70 text-[0.9rem] mt-2">15:00 — 22:00</p>
               </div>
 
               {/* Где */}
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="font-serif text-olive text-sm uppercase tracking-wide mb-2">Где</p>
                 <p className="font-serif text-chocolate text-[1.25rem] font-semibold">
-                  Due To Love
+                  Пасторское озеро
                 </p>
                 <a 
-                  href="https://yandex.ru/maps/-/CLhzMN9F" 
+                  href="https://yandex.ru/maps/org/pastorskoye_ozero/12506144592/?ll=30.133905%2C60.193748&utm_campaign=v1&utm_medium=rating&utm_source=badge&z=11" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-block font-serif text-marsala text-[0.9rem] mt-2 underline"
@@ -1203,12 +1304,12 @@ export default function App() {
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="font-serif text-olive text-sm uppercase tracking-wide mb-3">Вопросы?</p>
                 <a 
-                  href="https://t.me/wedding_sofya_sergey_bot" 
+                  href="https://t.me/ushakova_wed" 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block font-serif text-cream bg-olive py-2 px-4 rounded-lg text-[0.9rem]"
                 >
-                  Бот ответит
+                  Обращайтесь к&nbsp;организатору - Кристине
                 </a>
               </div>
 
@@ -1227,209 +1328,168 @@ export default function App() {
         )}
 
         {/* ========== ЭКРАН 12: RSVP ========== */}
-        {currentScreen === 11 && (
+        {/* ========== ЭКРАН 12: RSVP ========== */}
+{currentScreen === 12 && (
+  <motion.div
+    key="rsvp"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full flex flex-col justify-center px-6 relative"
+  >
+    {!formSubmitted ? (
+      <>
+        {!showForm ? (
+          // Начальный экран с вопросом и двумя кнопками
           <motion.div
-            key="rsvp"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <h2 className="font-serif text-[2.5rem] font-semibold text-chocolate mb-2">
+              Придёте?
+            </h2>
+            <p className="font-hand text-marsala text-[1.25rem] mb-8 border-b-2 border-marsala/30 pb-2 inline-block">
+              Ждём ответа до 1 мая
+            </p>
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={() => {
+                  setShowForm(true);
+                  setResponseType('accept');
+                }}
+                className="w-full py-4 bg-marsala text-cream font-serif text-lg rounded-lg hover:bg-opacity-90 transition-all"
+              >
+                Конечно
+              </button>
+              <button
+                onClick={() => {
+                  setResponseType('decline');
+                  setFormSubmitted(true);
+                }}
+                className="w-full py-4 border-2 border-marsala text-marsala font-serif text-lg rounded-lg hover:bg-marsala/10 transition-all"
+              >
+                К сожалению не получится
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          // Форма для заполнения (если выбрано "Конечно")
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="h-full w-full flex flex-col justify-center px-6 relative"
+            className="w-full"
           >
-            {!formSubmitted ? (
-              <>
-                <h2 className="font-serif text-[2.5rem] font-semibold text-chocolate mb-2">
-                  Придёте?
-                </h2>
-                
-                {/* Дедлайн — крупный, стилизованный */}
-                <p className="font-hand text-marsala text-[1.25rem] mb-6 border-b-2 border-marsala/30 pb-2 inline-block">
-                  Ждём ответа до&nbsp;1&nbsp;мая
-                </p>
+            <h2 className="font-serif text-[2rem] font-semibold text-chocolate mb-4 text-center">
+              Отлично! Заполните анкету
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Имя */}
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ваше имя"
+                className="w-full p-3 border-2 border-chocolate rounded-lg font-serif bg-transparent"
+                required
+              />
 
-                {/* Scale 1-7 */}
-                <div className="mb-5">
-                  <div className="flex gap-2 mb-2">
-                    {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-                      <button
-                        key={num}
-                        onClick={() => setFormData({ ...formData, rating: num })}
-                        style={{
-                          backgroundColor: formData.rating === num ? getRatingColor(num) : 'transparent',
-                        }}
-                        className={`w-10 h-10 rounded-lg border-2 border-chocolate font-serif text-base font-semibold transition-all ${
-                          formData.rating === num ? 'text-cream' : 'text-chocolate'
-                        }`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-between text-xs text-chocolate/60 font-serif">
-                    <span>Нет</span>
-                    <span>Думаю</span>
-                    <span>Точно буду!</span>
-                  </div>
-                  {formData.rating && (
-                    <p className="font-hand text-lg mt-2" style={{ color: getRatingColor(formData.rating) }}>
-                      {getRatingLabel(formData.rating)}
-                    </p>
-                  )}
+              {/* Алкоголь (множественный выбор) */}
+              <div>
+                <p className="font-serif text-chocolate mb-2">Алкоголь (можно выбрать несколько)</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Водка', 'Вино белое', 'Вино красное', 'Коньяк', 'Виски'].map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => {
+                        const alcohol = formData.alcohol.includes(option)
+                          ? formData.alcohol.filter(a => a !== option)
+                          : [...formData.alcohol, option];
+                        setFormData({ ...formData, alcohol });
+                      }}
+                      className={`px-4 py-2 border-2 border-chocolate rounded-lg font-serif transition-all ${
+                        formData.alcohol.includes(option) ? 'bg-marsala text-cream border-marsala' : ''
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                {/* Форма */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Имя */}
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Ваше имя"
-                    className="w-full p-3 border-2 border-chocolate rounded-lg font-serif bg-transparent"
-                  />
+              {/* Аллергии и особые пожелания */}
+              <div>
+                <p className="font-serif text-chocolate mb-2">Аллергии и особые пожелания</p>
+                <textarea
+                  value={formData.allergies}
+                  onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+                  placeholder="Если есть аллергии или особые пожелания, напишите здесь"
+                  className="w-full p-3 border-2 border-chocolate rounded-lg font-serif bg-transparent min-h-[80px]"
+                />
+              </div>
 
-                  {/* Чекбоксы */}
-                  <div className="flex gap-6 flex-wrap">
-                    <label className="flex items-center gap-2 cursor-pointer font-serif text-chocolate">
-                      <input
-                        type="checkbox"
-                        checked={formData.withGuest}
-                        onChange={(e) => setFormData({ ...formData, withGuest: e.target.checked })}
-                        className="w-5 h-5"
-                      />
-                      С&nbsp;парой
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer font-serif text-chocolate">
-                      <input
-                        type="checkbox"
-                        checked={formData.accommodation}
-                        onChange={(e) => setFormData({ ...formData, accommodation: e.target.checked })}
-                        className="w-5 h-5"
-                      />
-                      Нужно размещение
-                    </label>
-                  </div>
-
-                  {formData.withGuest && (
-                    <input
-                      type="text"
-                      value={formData.guestName}
-                      onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
-                      placeholder="Имя пары"
-                      className="w-full p-3 border-2 border-chocolate rounded-lg font-serif bg-transparent"
-                    />
-                  )}
-
-                  {/* Еда + Алкоголь */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="font-serif text-chocolate mb-2">Еда</p>
-                      <div className="flex flex-wrap gap-2">
-                        {['Мясо', 'Рыба', 'Вег'].map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => {
-                              const food = formData.food.includes(option)
-                                ? formData.food.filter(f => f !== option)
-                                : [...formData.food, option]
-                              setFormData({ ...formData, food })
-                            }}
-                            className={`px-3 py-2 border-2 border-chocolate rounded-lg font-serif transition-all ${
-                              formData.food.includes(option) ? 'bg-marsala text-cream border-marsala' : ''
-                            }`}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="font-serif text-chocolate mb-2">Алкоголь</p>
-                      <div className="flex flex-wrap gap-2">
-                        {['Вино', 'Крепкое', 'Нет'].map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => {
-                              const alcohol = formData.alcohol.includes(option)
-                                ? formData.alcohol.filter(a => a !== option)
-                                : [...formData.alcohol, option]
-                              setFormData({ ...formData, alcohol })
-                            }}
-                            className={`px-3 py-2 border-2 border-chocolate rounded-lg font-serif transition-all ${
-                              formData.alcohol.includes(option) ? 'bg-marsala text-cream border-marsala' : ''
-                            }`}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Как добираюсь */}
-                  <div>
-                    <p className="font-serif text-chocolate mb-2">Как добираюсь?</p>
-                    <div className="flex gap-2 flex-wrap">
-                      {['Машина', 'Такси', 'Трансфер'].map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, transport: option })}
-                          className={`px-4 py-2 border-2 border-chocolate rounded-lg font-serif transition-all ${
-                            formData.transport === option ? 'bg-marsala text-cream border-marsala' : ''
-                          }`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={!formData.rating || !formData.name || isSubmitting}
-                    className="w-full py-4 bg-marsala text-cream font-serif text-lg rounded-lg disabled:opacity-50"
-                  >
-                    {isSubmitting ? 'Отправляем...' : 'Отправить'}
-                  </button>
-                </form>
-              </>
-            ) : (
-              <>
-                <FloatingHearts />
-                
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="relative z-10"
-                >
-                  <motion.p 
-                    initial={{ y: 20 }}
-                    animate={{ y: 0 }}
-                    className="font-serif text-[3rem] font-semibold text-chocolate mb-4"
-                  >
-                    {formData.rating >= 5 ? 'Ждём вас!' : 'Спасибо!'}
-                  </motion.p>
-                  <p className="font-hand text-olive text-[1.5rem] mb-6">
-                    {formData.rating >= 5 
-                      ? 'Будем рады разделить этот день с\u00a0вами!' 
-                      : 'Если планы изменятся — возвращайтесь'}
-                  </p>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="font-hand text-marsala text-[1.25rem]"
-                  >
-                    Софья и&nbsp;Сергей
-                  </motion.p>
-                </motion.div>
-              </>
-            )}
+              {/* Кнопка отправки */}
+              <button
+                type="submit"
+                disabled={!formData.name || isSubmitting}
+                className="w-full py-4 bg-marsala text-cream font-serif text-lg rounded-lg disabled:opacity-50"
+              >
+                {isSubmitting ? 'Отправляем...' : 'Отправить'}
+              </button>
+            </form>
           </motion.div>
         )}
+      </>
+    ) : (
+      // Финальный экран (благодарность)
+      <>
+        <FloatingHearts />
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative z-10 text-center"
+        >
+          {responseType === 'accept' ? (
+            <>
+              <motion.p 
+                initial={{ y: 20 }}
+                animate={{ y: 0 }}
+                className="font-serif text-[3rem] font-semibold text-chocolate mb-4"
+              >
+                Ждём вас!
+              </motion.p>
+              <p className="font-hand text-olive text-[1.5rem] mb-6">
+                Будем рады разделить этот день с вами!
+              </p>
+            </>
+          ) : (
+            <>
+              <motion.p 
+                initial={{ y: 20 }}
+                animate={{ y: 0 }}
+                className="font-serif text-[3rem] font-semibold text-chocolate mb-4"
+              >
+                Спасибо за ответ!
+              </motion.p>
+              <p className="font-hand text-olive text-[1.5rem] mb-6">
+                Очень жаль, что не получится. Будем рады видеть вас в другой раз.
+              </p>
+            </>
+          )}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="font-hand text-marsala text-[1.25rem]"
+          >
+            Павел и Екатерина
+          </motion.p>
+        </motion.div>
+      </>
+    )}
+  </motion.div>
+)}
 
       </AnimatePresence>
       </div>

@@ -103,3 +103,100 @@ input[type="checkbox"] {
     height: 100dvh;
   }
 }
+
+/* Дополнительные стили для адаптивности и исправлений */
+
+/* Уменьшение шрифтов на очень маленьких экранах (до 360px) */
+@media (max-width: 360px) {
+  .font-serif.text-\[2rem\] {
+    font-size: 1.75rem;
+  }
+  .font-serif.text-\[2\.5rem\] {
+    font-size: 2rem;
+  }
+  .font-serif.text-\[3rem\] {
+    font-size: 2.5rem;
+  }
+  .font-serif.text-\[3\.5rem\] {
+    font-size: 2.8rem;
+  }
+  .font-serif.text-\[4rem\] {
+    font-size: 3.2rem;
+  }
+  .font-hand.text-\[1\.5rem\] {
+    font-size: 1.25rem;
+  }
+  .font-hand.text-\[1\.75rem\] {
+    font-size: 1.4rem;
+  }
+  .font-hand.text-\[2\.5rem\] {
+    font-size: 2rem;
+  }
+}
+
+/* Экран 1 (story-start) — увеличиваем ширину контента на узких экранах */
+@media (max-width: 480px) {
+  .max-w-\[70\%\] {
+    max-width: 85%;
+  }
+}
+
+/* Экран 4 (highfive) — кнопки в ряд на очень маленьких экранах */
+@media (max-width: 400px) {
+  .absolute.bottom-32.left-0.right-0.flex {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    bottom: 8rem;
+  }
+  .absolute.bottom-32 .px-5.py-3 {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Экран 10 (schedule) — убираем фиксированную ширину карточек, чтобы они не ломали сетку */
+.schedule-card {
+  max-width: none !important;
+  width: auto;
+  min-width: 120px;
+}
+@media (max-width: 360px) {
+  .schedule-card {
+    min-width: 100px;
+    padding: 0.5rem;
+  }
+  .schedule-card .text-sm {
+    font-size: 0.7rem;
+  }
+  .schedule-card .text-xs {
+    font-size: 0.6rem;
+  }
+}
+
+/* Экран 8 (venue) — текст не должен выходить за границы */
+.absolute.top-10.left-6.right-6.z-20 {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  text-align: center;
+}
+
+/* Экран 2 (story-start) — левый контент не прилипает к краю */
+@media (max-width: 360px) {
+  .pl-6 {
+    padding-left: 1rem;
+  }
+  .pr-6 {
+    padding-right: 1rem;
+  }
+}
+
+/* Общие улучшения для абсолютно позиционированных элементов */
+.absolute.bottom-8.left-6 {
+  left: 1.5rem;
+  bottom: 2rem;
+}
+@media (max-width: 360px) {
+  .absolute.bottom-8.left-6 {
+    left: 1rem;
+    bottom: 1rem;
+  }
+}
