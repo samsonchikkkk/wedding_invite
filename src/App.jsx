@@ -716,41 +716,45 @@ export default function App() {
     exit={{ opacity: 0 }}
     className="h-full w-full relative"
   >
+    {/* Фоновое изображение (теперь с нормальной opacity) */}
     <FadeImage
       src="./images/dance.png"
       alt=""
       className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-      style={{ opacity: 0.1 }}
+      // Убрано style={{ opacity: 0 }} – изображение становится видимым
     />
+
+    {/* Градиент поверх фото, как на экране first-meeting – смягчает контраст */}
+    <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/70 to-transparent z-0" />
+
     {!showHighfiveResult ? (
-      // До ответа — текст сверху и снизу
+      // Текст до ответа
       <>
         <motion.p
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-8 left-10 transform -translate-x-1/2 font-hand text-white text-[1.5rem] z-20"
-          style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)' }}
+          className="absolute top-8 left-10 transform -translate-x-1/2 font-hand text-marsala text-[2.0rem] z-20"
+          // style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)' }}
         >
-          месяц спустя
+          Месяц спустя...
         </motion.p>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="absolute bottom-20 left-39 transform -translate-x-1/2 font-hand text-cream text-[1.75rem] font-medium text-center z-20"
-          style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)' }}
+          className="absolute top-20 right-12 transform -translate-x-1/2 font-hand text-marsala text-[1.75rem] font-medium text-center z-20"
+          // style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)' }}
         >
           Их первый медленный&nbsp;танец
         </motion.p>
       </>
     ) : (
-      // После ответа — картинка на весь экран (пока пусто)
+      // После ответа – картинка на весь экран (можно оставить пустым или добавить контент)
       <></>
     )}
   </motion.div>
 )}
-
         {/* ========== ЭКРАН 5: LAUGHTER ========== */}
         {currentScreen === 4 && (
           <motion.div
@@ -1072,13 +1076,13 @@ export default function App() {
       {/* Сетка для событий */}
       <div className="grid grid-cols-[1fr_auto_1fr] gap-y-6 relative z-10">
         {[
-          { time: '14:30', desc: 'Трансфер от метро «Беговая»', icon: 'bus' },
-          { time: '15:30', desc: 'Сбор гостей', icon: 'guests' },
-          { time: '16:00', desc: 'Начало церемонии', icon: 'ceremony' },
-          { time: '17:00', desc: 'Банкет', icon: 'banquet' },
+          { time: '13:30', desc: 'Трансфер ', icon: 'bus' },
+          { time: '15:00', desc: 'Сбор гостей', icon: 'guests' },
+          { time: '15:30', desc: 'Начало церемонии', icon: 'ceremony' },
+          { time: '16:00', desc: 'Банкет', icon: 'banquet' },
           { time: '20:00', desc: 'Торт', icon: 'cake' },
           { time: '21:00', desc: 'Дискотека', icon: 'disco' },
-          { time: '22:30', desc: 'Окончание', icon: 'end' },
+          { time: '22:00', desc: 'Окончание', icon: 'end' },
         ].map((event, index) => {
           const isLeft = index % 2 === 0 // чётные слева, нечётные справа
 
@@ -1222,11 +1226,11 @@ export default function App() {
         <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">Что надеть</p>
         <p className="font-serif text-chocolate/80 text-[1.4rem] mb-3">Приходите в этих оттенках:</p>
         <div className="flex gap-4">
-          <span className="w-12 h-12 rounded-full bg-[#722F37] border-2 border-chocolate/30" />
-          <span className="w-12 h-12 rounded-full bg-[#5C6B4A] border-2 border-chocolate/30" />
-          <span className="w-12 h-12 rounded-full bg-[#F5F0E6] border-2 border-chocolate/30" />
-          <span className="w-12 h-12 rounded-full bg-[#6B8E9F] border-2 border-chocolate/30" />
-          <span className="w-12 h-12 rounded-full bg-[#3D2B1F] border-2 border-chocolate/30" />
+        <span className="w-12 h-12 rounded-full bg-[#2d9c5d] border-2 border-chocolate/30" /> {/* лесной зелёный */}
+<span className="w-12 h-12 rounded-full bg-[#8B5A2B] border-2 border-chocolate/30" /> {/* древесный коричневый */}
+<span className="w-12 h-12 rounded-full bg-[#7AA5B9] border-2 border-chocolate/30" /> {/* небесный голубой */}
+<span className="w-12 h-12 rounded-full bg-[#f0ed67] border-2 border-chocolate/30" /> {/* золотистый жёлтый (осенний лист) */}
+{/* <span className="w-12 h-12 rounded-full bg-[#C44C2B] border-2 border-chocolate/30" /> терракотовый (закат/грибы) */}
         </div>
         <p className="font-hand text-olive text-[1.25rem] mt-2">Строгой проверки не будет</p>
       </div>
@@ -1284,11 +1288,10 @@ export default function App() {
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="font-serif text-olive text-sm uppercase tracking-wide mb-3">Что надеть</p>
                 <div className="flex gap-2">
-                  <span className="w-6 h-6 rounded-full bg-[#722F37] border-2 border-chocolate/30" />
-                  <span className="w-6 h-6 rounded-full bg-[#5C6B4A] border-2 border-chocolate/30" />
-                  <span className="w-6 h-6 rounded-full bg-[#F5F0E6] border-2 border-chocolate/30" />
-                  <span className="w-6 h-6 rounded-full bg-[#6B8E9F] border-2 border-chocolate/30" />
-                  <span className="w-6 h-6 rounded-full bg-[#3D2B1F] border-2 border-chocolate/30" />
+                  <span className="w-12 h-12 rounded-full bg-[#2d9c5d] border-2 border-chocolate/30" /> {/* лесной зелёный */}
+<span className="w-12 h-12 rounded-full bg-[#8B5A2B] border-2 border-chocolate/30" /> {/* древесный коричневый */}
+<span className="w-12 h-12 rounded-full bg-[#7AA5B9] border-2 border-chocolate/30" /> {/* небесный голубой */}
+<span className="w-12 h-12 rounded-full bg-[#f0ed67] border-2 border-chocolate/30" /> {/* золотистый жёлтый (осенний лист) */}
                 </div>
               </div>
 
@@ -1296,7 +1299,7 @@ export default function App() {
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="font-serif text-olive text-sm uppercase tracking-wide mb-2">Что взять</p>
                 <p className="font-serif text-chocolate/80 text-[0.9rem]">
-                  Настроение · Сменку · Тёплое
+                  Хорошее настроение 
                 </p>
               </div>
 
@@ -1317,10 +1320,10 @@ export default function App() {
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="font-serif text-olive text-sm uppercase tracking-wide mb-2">Контакт</p>
                 <a 
-                  href="tel:+79991621492"
+                  href="tel:+79111203141"
                   className="font-serif text-chocolate text-[1rem] font-medium"
                 >
-                  +7 999 162-14-92
+                  +7 911 120-31-41
                 </a>
               </div>
             </div>
@@ -1398,7 +1401,7 @@ export default function App() {
               <div>
                 <p className="font-serif text-chocolate mb-2">Алкоголь (можно выбрать несколько)</p>
                 <div className="flex flex-wrap gap-2">
-                  {['Водка', 'Вино белое', 'Вино красное', 'Коньяк', 'Виски'].map((option) => (
+                  {['Водка', 'Вино белое', 'Вино красное', 'Коньяк', 'Виски', 'Безалкогольное'].map((option) => (
                     <button
                       key={option}
                       type="button"
