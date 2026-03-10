@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://samsonchikkkk.github.io/wedding_invite",
+  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
