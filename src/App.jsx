@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Компонент для плавного появления картинок
@@ -37,16 +37,16 @@ const screenImages = {
   0: ['./images/frame.png'],
   1: ['./images/story-start.png'],
   2: ['./images/first-meeting.png'],
-  3: ['./images/dance.png'],           // было: handshake-btn, highfive-btn, highfive-result
+  3: ['./images/dance.png'],
   4: ['./images/laughter.png'],
   5: ['./images/together.png'],
   6: ['./images/proposal.png'],
   7: ['./images/invitation.png'],
   8: ['./images/venue.png'],
-  9: [],                                // schedule — без картинок
-  10: [],                               // preparation
-  11: [],                               // cheatsheet
-  12: [],                               // rsvp
+  9: [],
+  10: [],
+  11: [],
+  12: [],
 };
 
 const loadedImages = new Set();
@@ -74,7 +74,6 @@ const preloadScreen = (screenIndex) => {
 const GOOGLE_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbyl9CVwxbi5icXAyAZLlomkE4ezPtV35hJcVzbYOwIQNv2DwtGDJoE1tcLufn9za4RD6Q/exec';
 
-// Получаем имена гостей из URL
 const formatName = (slug) => {
   if (!slug) return '';
   return slug
@@ -94,7 +93,6 @@ const getGuestsFromURL = () => {
   };
 };
 
-// Проверяем, просматривал ли пользователь историю ранее
 const STORAGE_KEY = 'wedding_story_viewed';
 const hasViewedStory = () => {
   try {
@@ -109,21 +107,10 @@ const markStoryViewed = () => {
   } catch {}
 };
 
-// Конфиг экранов
 const screens = [
-  'intro', // 0
-  'story-start', // 1
-  'first-meeting', // 2
-  'dance', // 3 (был highfive)
-  'laughter', // 4
-  'together', // 5
-  'proposal', // 6
-  'invitation', // 7
-  'venue', // 8
-  'schedule', // 9
-  'preparation', // 10
-  'cheatsheet', // 11
-  'rsvp', // 12
+  'intro', 'story-start', 'first-meeting', 'dance', 'laughter',
+  'together', 'proposal', 'invitation', 'venue', 'schedule',
+  'preparation', 'cheatsheet', 'rsvp'
 ];
 
 // Компонент Fireflies для экрана 1
@@ -327,14 +314,16 @@ export default function App() {
     }
   }, [currentScreen, storyViewed]);
 
-  // ===== PRELOAD ИЗОБРАЖЕНИЙ =====
+  // ===== PRELOAD ИЗОБРАЖЕНИЙ с обработкой ошибок =====
   useEffect(() => {
-    Promise.all([preloadScreen(0), preloadScreen(1), preloadScreen(2)]);
+    Promise.all([preloadScreen(0), preloadScreen(1), preloadScreen(2)]).catch(err =>
+      console.warn('Preload failed', err)
+    );
   }, []);
 
   useEffect(() => {
-    preloadScreen(currentScreen + 1);
-    preloadScreen(currentScreen + 2);
+    preloadScreen(currentScreen + 1).catch(() => {});
+    preloadScreen(currentScreen + 2).catch(() => {});
   }, [currentScreen]);
   // ===== КОНЕЦ PRELOAD =====
 
@@ -359,7 +348,6 @@ export default function App() {
 
   // Свайп навигация
   const handleTouchStart = (e) => setTouchStart(e.touches[0].clientY);
-
   const handleTouchEnd = (e) => {
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStart - touchEnd;
@@ -372,23 +360,25 @@ export default function App() {
     }
   };
 
-  // Scroll навигация
+  // Scroll навигация (исправлено: очистка таймера)
   useEffect(() => {
-    let timeout;
+    let timeoutId;
     const handleWheel = (e) => {
-      if (!timeout) {
-        timeout = setTimeout(() => {
-          if (e.deltaY > 30 && currentScreen < screens.length - 1) {
-            setCurrentScreen((prev) => prev + 1);
-          } else if (e.deltaY < -30 && currentScreen > 0) {
-            setCurrentScreen((prev) => prev - 1);
-          }
-          timeout = null;
-        }, 600);
-      }
+      if (timeoutId) return;
+      timeoutId = setTimeout(() => {
+        if (e.deltaY > 30 && currentScreen < screens.length - 1) {
+          setCurrentScreen((prev) => prev + 1);
+        } else if (e.deltaY < -30 && currentScreen > 0) {
+          setCurrentScreen((prev) => prev - 1);
+        }
+        timeoutId = null;
+      }, 600);
     };
     window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [currentScreen]);
 
   // Keyboard навигация
@@ -422,7 +412,6 @@ export default function App() {
     } catch (error) {
       console.error('Error submitting:', error);
     }
-
     setIsSubmitting(false);
     setFormSubmitted(true);
   };
@@ -434,6 +423,11 @@ export default function App() {
     return diff > 0 ? diff : 0;
   };
 
+  // Fallback для иконок
+  const handleIconError = (e) => {
+    e.target.style.display = 'none';
+  };
+
   return (
     <div className="min-h-screen w-full bg-neutral-800 flex items-center justify-center p-0 md:p-8">
       <div
@@ -441,12 +435,13 @@ export default function App() {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Навигация точками */}
+        {/* Навигация точками с aria-label */}
         <div className="absolute right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
           {screens.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentScreen(i)}
+              aria-label={`Перейти к экрану ${i + 1}`}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
                 currentScreen === i
                   ? 'bg-marsala scale-125'
@@ -480,7 +475,7 @@ export default function App() {
               >
                 <FadeImage
                   src="./images/frame.png"
-                  alt=""
+                  alt="Фоторамка с датой свадьбы"
                   className="w-full h-full object-cover pointer-events-none"
                 />
               </motion.div>
@@ -550,13 +545,14 @@ export default function App() {
             >
               <FadeImage
                 src="./images/story-start.png"
-                alt=""
+                alt="Зимний пейзаж, начало истории"
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
                 style={{ objectPosition: 'left 100%' }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-cream/95 via-cream/70 to-transparent z-0" />
 
-              <div className="relative z-10 h-full flex flex-col justify-center px-6 max-w-[70%]">
+              {/* Добавлен класс для адаптации */}
+              <div className="relative z-10 h-full flex flex-col justify-center px-6 story-start-content max-w-[70%] md:max-w-[60%]">
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -617,7 +613,7 @@ export default function App() {
                     <p className="font-serif text-[1.1rem] text-chocolate/80 mb-4">
                       Она впервые увидела его и подумала:
                     </p>
-                    <p className="font-serif text-[2.5rem] font-semibold text-marsala italic">
+                    <p className="font-serif text-[2.0rem] font-semibold text-marsala italic">
                       «Точно нет, ведь он слишком молод»
                     </p>
                   </motion.div>
@@ -637,7 +633,7 @@ export default function App() {
             >
               <FadeImage
                 src="./images/first-meeting.png"
-                alt=""
+                alt="Прогулка по лесу осенью"
                 className="absolute inset-0 w-full h-full pointer-events-none z-0"
                 style={{
                   objectFit: 'cover',
@@ -647,11 +643,11 @@ export default function App() {
               />
               <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/70 to-transparent z-0" />
 
-              <div className="relative z-10 pt-16 px-6">
+              <div className="relative z-10 pt-11 px-5">
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="font-hand text-marsala text-[1.5rem] mb-8"
+                  className="font-hand text-marsala text-[1.5rem] mb-3"
                 >
                   Осень 2019
                 </motion.p>
@@ -661,7 +657,7 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <p className="font-serif text-[1.5rem] font-medium text-chocolate mb-3">
+                  <p className="font-serif text-[1.5rem] font-medium text-chocolate mb-2">
                     Они пошли гулять по лесу
                   </p>
                   <p className="font-serif text-[2rem] font-semibold text-chocolate leading-tight ">
@@ -675,7 +671,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {/* ========== ЭКРАН 4: DANCE (был HIGHFIVE) ========== */}
+          {/* ========== ЭКРАН 4: DANCE ========== */}
           {currentScreen === 3 && (
             <motion.div
               key="dance"
@@ -686,15 +682,16 @@ export default function App() {
             >
               <FadeImage
                 src="./images/dance.png"
-                alt=""
+                alt="Танец пары"
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/70 to-transparent z-0" />
 
+              {/* Добавлен класс для адаптации текста */}
               <motion.p
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute top-8 left-10 font-hand text-marsala text-[2.0rem] z-20"
+                className="dance-text-top absolute top-8 left-10 font-hand text-marsala text-[2.0rem] z-20"
               >
                 Месяц спустя...
               </motion.p>
@@ -703,7 +700,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="absolute top-20 right-12 font-hand text-marsala text-[1.75rem] font-medium text-center z-20"
+                className="dance-text-bottom absolute top-20 right-12 font-hand text-marsala text-[1.75rem] font-medium text-center z-20"
               >
                 Их первый медленный танец
               </motion.p>
@@ -721,7 +718,7 @@ export default function App() {
             >
               <FadeImage
                 src="./images/laughter.png"
-                alt=""
+                alt="Смеющаяся пара"
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
                 style={{ objectPosition: 'center 70%' }}
               />
@@ -759,7 +756,7 @@ export default function App() {
             >
               <FadeImage
                 src="./images/together.png"
-                alt=""
+                alt="Счастливая пара вместе"
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
                 style={{ objectPosition: 'center 75%' }}
               />
@@ -815,7 +812,7 @@ export default function App() {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 1.5 }}
                 src="./images/proposal.png"
-                alt=""
+                alt="Предложение на горе в Китае"
                 className="absolute inset-0 w-full h-full object-cover object-center z-0"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-0" />
@@ -871,7 +868,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1 }}
                 src="./images/invitation.png"
-                alt=""
+                alt="Приглашение"
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
               />
 
@@ -933,16 +930,17 @@ export default function App() {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 1.2 }}
                 src="./images/venue.png"
-                alt=""
+                alt="Пасторское озеро"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-chocolate/95 via-chocolate/40 to-transparent" />
 
+              {/* Добавлен класс для адаптации текста */}
               <motion.p
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="absolute top-10 left-6 right-6 z-20 font-hand font-semibold text-gold text-[2.0rem] [text-shadow:2px_2px_0_#8B5A2B,_-2px_-2px_0_#8B5A2B,_2px_-2px_0_#8B5A2B,_-2px_2px_0_#8B5A2B]"
+                className="venue-text absolute top-10 left-6 right-6 z-20 font-hand font-semibold text-gold text-[2.0rem] [text-shadow:2px_2px_0_#8B5A2B,_-2px_-2px_0_#8B5A2B,_2px_-2px_0_#8B5A2B,_-2px_2px_0_#8B5A2B]"
               >
                 И мы уже знаем, где это случится
               </motion.p>
@@ -1012,27 +1010,27 @@ export default function App() {
 
                 <div className="grid grid-cols-[1fr_auto_1fr] gap-y-6 relative z-10">
                   {[
-                    { time: '13:30', desc: 'Трансфер', icon: 'bus' },
-                    { time: '15:00', desc: 'Сбор гостей', icon: 'guests' },
-                    { time: '15:30', desc: 'Начало церемонии', icon: 'ceremony' },
-                    { time: '16:00', desc: 'Банкет', icon: 'banquet' },
-                    { time: '20:00', desc: 'Торт', icon: 'cake' },
-                    { time: '21:00', desc: 'Дискотека', icon: 'disco' },
-                    { time: '22:00', desc: 'Окончание', icon: 'end' },
-                  ].map((event, index) => {
-                    const isLeft = index % 2 === 0;
+                    { id: 1, time: '13:30', desc: 'Трансфер', icon: 'bus' },
+                    { id: 2, time: '15:00', desc: 'Сбор гостей', icon: 'guests' },
+                    { id: 3, time: '15:30', desc: 'Начало церемонии', icon: 'ceremony' },
+                    { id: 4, time: '16:00', desc: 'Банкет', icon: 'banquet' },
+                    { id: 5, time: '20:00', desc: 'Торт', icon: 'cake' },
+                    { id: 6, time: '21:00', desc: 'Дискотека', icon: 'disco' },
+                    { id: 7, time: '22:00', desc: 'Окончание', icon: 'end' },
+                  ].map((event) => {
+                    const isLeft = event.id % 2 !== 0; // чередование на основе id
 
                     return (
-                      <React.Fragment key={index}>
+                      <React.Fragment key={event.id}>
                         <div className="flex items-center h-12">
                           {isLeft ? (
                             <motion.div
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.2 + index * 0.1 }}
+                              transition={{ delay: 0.2 + event.id * 0.1 }}
                               className="flex items-center justify-end w-full gap-2"
                             >
-                              <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-chocolate/10 max-w-[140px]">
+                              <div className="schedule-card bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-chocolate/10 max-w-[140px]">
                                 <p className="font-serif font-semibold text-olive text-sm">
                                   {event.time}
                                 </p>
@@ -1043,7 +1041,7 @@ export default function App() {
                               <motion.div
                                 initial={{ scaleX: 0 }}
                                 animate={{ scaleX: 1 }}
-                                transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                                transition={{ delay: 0.3 + event.id * 0.1, duration: 0.4 }}
                                 style={{ transformOrigin: 'right' }}
                                 className="h-0.5 bg-chocolate/30 flex-1"
                               />
@@ -1052,12 +1050,13 @@ export default function App() {
                             <motion.div
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.2 + index * 0.1 }}
+                              transition={{ delay: 0.2 + event.id * 0.1 }}
                               className="flex justify-end w-full"
                             >
                               <img
                                 src={`./icons/${event.icon}.svg`}
                                 alt=""
+                                onError={handleIconError}
                                 className="w-16 h-12 object-contain"
                               />
                             </motion.div>
@@ -1068,7 +1067,7 @@ export default function App() {
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            transition={{ delay: 0.2 + index * 0.1, type: 'spring' }}
+                            transition={{ delay: 0.2 + event.id * 0.1, type: 'spring' }}
                             className="w-4 h-4 rounded-full bg-marsala border-2 border-cream shadow-md z-20"
                           />
                         </div>
@@ -1078,17 +1077,17 @@ export default function App() {
                             <motion.div
                               initial={{ opacity: 0, x: 20 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.2 + index * 0.1 }}
+                              transition={{ delay: 0.2 + event.id * 0.1 }}
                               className="flex items-center justify-start w-full gap-2"
                             >
                               <motion.div
                                 initial={{ scaleX: 0 }}
                                 animate={{ scaleX: 1 }}
-                                transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                                transition={{ delay: 0.3 + event.id * 0.1, duration: 0.4 }}
                                 style={{ transformOrigin: 'left' }}
                                 className="h-0.5 bg-chocolate/30 flex-1"
                               />
-                              <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-chocolate/10 max-w-[140px]">
+                              <div className="schedule-card bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-chocolate/10 max-w-[140px]">
                                 <p className="font-serif font-semibold text-olive text-sm">
                                   {event.time}
                                 </p>
@@ -1101,12 +1100,13 @@ export default function App() {
                             <motion.div
                               initial={{ opacity: 0, x: 20 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.2 + index * 0.1 }}
+                              transition={{ delay: 0.2 + event.id * 0.1 }}
                               className="flex justify-start w-full"
                             >
                               <img
                                 src={`./icons/${event.icon}.svg`}
                                 alt=""
+                                onError={handleIconError}
                                 className="w-16 h-12 object-contain"
                               />
                             </motion.div>

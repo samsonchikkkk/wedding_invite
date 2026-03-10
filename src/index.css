@@ -104,7 +104,7 @@ input[type="checkbox"] {
   }
 }
 
-/* Дополнительные стили для адаптивности и исправлений */
+/* ===== АДАПТИВНЫЕ СТИЛИ (исправлено: используются именованные классы) ===== */
 
 /* Уменьшение шрифтов на очень маленьких экранах (до 360px) */
 @media (max-width: 360px) {
@@ -134,27 +134,51 @@ input[type="checkbox"] {
   }
 }
 
-/* Экран 1 (story-start) — увеличиваем ширину контента на узких экранах */
+/* Экран 2 (story-start) — увеличиваем ширину контента */
 @media (max-width: 480px) {
-  .max-w-\[70\%\] {
+  .story-start-content {
     max-width: 85%;
   }
 }
-
-/* Экран 4 (highfive) — кнопки в ряд на очень маленьких экранах */
-@media (max-width: 400px) {
-  .absolute.bottom-32.left-0.right-0.flex {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    bottom: 8rem;
-  }
-  .absolute.bottom-32 .px-5.py-3 {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
+@media (max-width: 360px) {
+  .story-start-content {
+    max-width: 90%;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 
-/* Экран 10 (schedule) — убираем фиксированную ширину карточек, чтобы они не ломали сетку */
+/* Экран 4 (dance) — адаптация абсолютно позиционированного текста */
+@media (max-width: 400px) {
+  .dance-text-top {
+    top: 1rem;
+    left: 1rem;
+    font-size: 1.5rem;
+  }
+  .dance-text-bottom {
+    top: auto;
+    bottom: 2rem;
+    right: 1rem;
+    left: 1rem;
+    text-align: center;
+    font-size: 1.25rem;
+  }
+}
+
+/* Экран 8 (venue) — текст не должен выходить за границы */
+.venue-text {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  text-align: center;
+  left: 1rem;
+  right: 1rem;
+}
+@media (max-width: 360px) {
+  .venue-text {
+    top: 2rem;
+  }
+}
+
+/* Экран 10 (schedule) — карточки расписания */
 .schedule-card {
   max-width: none !important;
   width: auto;
@@ -173,13 +197,7 @@ input[type="checkbox"] {
   }
 }
 
-/* Экран 8 (venue) — текст не должен выходить за границы */
-.absolute.top-10.left-6.right-6.z-20 {
-  font-size: clamp(1.5rem, 5vw, 2rem);
-  text-align: center;
-}
-
-/* Экран 2 (story-start) — левый контент не прилипает к краю */
+/* Общие корректировки отступов на очень маленьких экранах */
 @media (max-width: 360px) {
   .pl-6 {
     padding-left: 1rem;
@@ -187,14 +205,6 @@ input[type="checkbox"] {
   .pr-6 {
     padding-right: 1rem;
   }
-}
-
-/* Общие улучшения для абсолютно позиционированных элементов */
-.absolute.bottom-8.left-6 {
-  left: 1.5rem;
-  bottom: 2rem;
-}
-@media (max-width: 360px) {
   .absolute.bottom-8.left-6 {
     left: 1rem;
     bottom: 1rem;
