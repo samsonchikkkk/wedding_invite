@@ -210,3 +210,11 @@ input[type="checkbox"] {
     bottom: 1rem;
   }
 }
+.motion-safe {
+  will-change: transform, opacity;
+}
+@media (max-width: 480px) {
+  .motion-div {
+    transition-duration: 0.2s !important;
+  }
+}

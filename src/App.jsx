@@ -580,7 +580,7 @@ export default function App() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
+                    transition={{ delay: 0.3 }}
                   >
                     <p className="font-serif text-[1.1rem] text-chocolate/80 mb-5">
                       Она впервые увидела его и подумала:
