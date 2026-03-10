@@ -534,94 +534,93 @@ export default function App() {
             </motion.div>
           )}
 
-          {/* ========== ЭКРАН 2: STORY START ========== */}
-          {currentScreen === 1 && (
-            <motion.div
-              key="story-start"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="h-full w-full relative"
-            >
-              <FadeImage
-                src="./images/story-start.png"
-                alt="Зимний пейзаж, начало истории"
-                className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-                style={{ objectPosition: 'left 100%' }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-cream/95 via-cream/70 to-transparent z-0" />
+         {/* ========== ЭКРАН 2: STORY START ========== */}
+{currentScreen === 1 && (
+  <motion.div
+    key="story-start"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="h-full w-full relative"
+  >
+    <FadeImage
+      src="./images/story-start.png"
+      alt="Зимний пейзаж, начало истории"
+      className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      style={{ objectPosition: 'left 100%' }}
+    />
+    <div className="absolute inset-0 bg-gradient-to-r from-cream/95 via-cream/70 to-transparent z-0" />
 
-              {/* Добавлен класс для адаптации */}
-              <div className="relative z-10 h-full flex flex-col justify-center px-6 story-start-content max-w-[70%] md:max-w-[55%]">
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="font-hand text-marsala text-[1.5rem] mb-4"
-                >
-                  зима 2018
-                </motion.p>
+    {/* Контейнер с контентом — прижат к верху (justify-start + pt-12) */}
+    <div className="relative z-10 h-full flex flex-col justify-start px-6 story-start-content max-w-[70%] md:max-w-[55%] pt-12">
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-hand text-marsala text-[1.5rem] mb-4"
+      >
+        зима 2018
+      </motion.p>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="mb-8"
-                >
-                  <p className="font-serif text-[2rem] font-medium text-chocolate leading-tight">
-                    Это история любви
-                  </p>
-                  <p className="font-serif text-[2rem] font-medium text-chocolate leading-tight">
-                    с первого взгляда
-                  </p>
-                  <p className="font-hand text-[1.5rem] text-olive mt-3 italic">Почти.</p>
-                </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-8"
+      >
+        <p className="font-serif text-[2rem] font-medium text-chocolate leading-tight">
+          Это история любви
+        </p>
+        <p className="font-serif text-[2rem] font-medium text-chocolate leading-tight">
+          с первого взгляда
+        </p>
+        <p className="font-hand text-[1.5rem] text-olive mt-3 italic">Почти.</p>
+      </motion.div>
 
-                {!showStoryResult ? (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <p className="font-serif text-[1.1rem] text-chocolate/80 mb-5">
-                      Она впервые увидела его и подумала:
-                    </p>
-                    <div className="flex flex-col gap-3">
-                      {['Интересно...', 'Может быть', 'Точно нет'].map((answer, i) => (
-                        <motion.button
-                          key={answer}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.6 + i * 0.1 }}
-                          onClick={() => handleStoryAnswer(answer)}
-                          disabled={storyAnswer !== null}
-                          className={`text-left font-serif text-[1.1rem] py-4 px-5 border-2 rounded-lg transition-all ${
-                            storyAnswer === answer
-                              ? 'bg-marsala text-cream border-marsala'
-                              : 'border-chocolate text-chocolate hover:border-marsala bg-cream/80'
-                          } ${storyAnswer && storyAnswer !== answer ? 'opacity-40' : ''}`}
-                        >
-                          {answer}
-                        </motion.button>
-                      ))}
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <p className="font-serif text-[1.1rem] text-chocolate/80 mb-4">
-                      Она впервые увидела его и подумала:
-                    </p>
-                    <p className="font-serif text-[2.0rem] font-semibold text-marsala italic">
-                      «Точно нет, ведь он слишком молод»
-                    </p>
-                  </motion.div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
+      {!showStoryResult ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <p className="font-serif text-[1.1rem] text-chocolate/80 mb-5">
+            Она впервые увидела его и подумала:
+          </p>
+          <div className="flex flex-col items-start gap-3 w-full">
+            {['Интересно...', 'Может быть', 'Точно нет'].map((answer, i) => (
+              <motion.button
+                key={answer}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.1 }}
+                onClick={() => handleStoryAnswer(answer)}
+                disabled={storyAnswer !== null}
+                className={`text-left font-serif text-[1.1rem] py-3 px-5 border-2 rounded-lg w-auto min-w-[200px] max-w-full transition-all ${
+                  storyAnswer === answer
+                    ? 'bg-marsala text-cream border-marsala'
+                    : 'border-chocolate text-chocolate hover:border-marsala bg-cream/80'
+                } ${storyAnswer && storyAnswer !== answer ? 'opacity-40' : ''}`}
+              >
+                {answer}
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <p className="font-serif text-[1.1rem] text-chocolate/80 mb-4">
+            Она впервые увидела его и подумала:
+          </p>
+          <p className="font-serif text-[2.0rem] font-semibold text-marsala italic">
+            «Точно нет, ведь он слишком молод»
+          </p>
+        </motion.div>
+      )}
+    </div>
+  </motion.div>
+)}
           {/* ========== ЭКРАН 3: FIRST MEETING ========== */}
           {currentScreen === 2 && (
             <motion.div
