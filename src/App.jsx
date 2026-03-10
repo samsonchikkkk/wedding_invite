@@ -552,11 +552,11 @@ export default function App() {
               <div className="absolute inset-0 bg-gradient-to-r from-cream/95 via-cream/70 to-transparent z-0" />
 
               {/* Добавлен класс для адаптации */}
-              <div className="relative z-10 h-full flex flex-col justify-center px-6 story-start-content max-w-[70%] md:max-w-[60%]">
+              <div className="relative z-10 h-full flex flex-col justify-center px-6 story-start-content max-w-[70%] md:max-w-[55%]">
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="font-hand text-marsala text-[1.5rem] mb-8"
+                  className="font-hand text-marsala text-[1.5rem] mb-4"
                 >
                   зима 2018
                 </motion.p>
@@ -643,11 +643,11 @@ export default function App() {
               />
               <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/70 to-transparent z-0" />
 
-              <div className="relative z-10 pt-11 px-5">
+              <div className="relative z-10 pt-5 px-5">
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="font-hand text-marsala text-[1.5rem] mb-3"
+                  className="font-hand text-marsala text-[1.5rem] mb-2"
                 >
                   Осень 2019
                 </motion.p>
@@ -940,7 +940,7 @@ export default function App() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="venue-text absolute top-10 left-6 right-6 z-20 font-hand font-semibold text-gold text-[2.0rem] [text-shadow:2px_2px_0_#8B5A2B,_-2px_-2px_0_#8B5A2B,_2px_-2px_0_#8B5A2B,_-2px_2px_0_#8B5A2B]"
+                className="venue-text absolute top-10 left-6 right-6 z-20 font-hand font-semibold text-gold text-[2.5rem] [text-shadow:1px_1px_0_#8B5A2B,_-1px_-1px_0_#8B5A2B,_1px_-1px_0_#8B5A2B,_-1px_1px_0_#8B5A2B]"
               >
                 И мы уже знаем, где это случится
               </motion.p>
