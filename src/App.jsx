@@ -514,7 +514,7 @@ export default function App() {
                     repeat: Infinity,
                     ease: 'easeInOut',
                   }}
-                  className="font-hand text-chocolate text-lg drop-shadow-[0_2px_4px_rgba(245,240,230,0.9)]"
+                  className="font-hand text-chocolate text-[2.2rem] drop-shadow-[0_2px_4px_rgba(245,240,230,0.9)]"
                 >
                   листай ↓
                 </motion.p>
@@ -524,8 +524,8 @@ export default function App() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    onClick={() => setCurrentScreen(1)}
-                    className="font-serif text-sm text-chocolate/60 hover:text-marsala underline underline-offset-2 transition-colors"
+                    onClick={() => setCurrentScreen(12)}
+                    className="font-serif text-lg text-chocolate/60 hover:text-marsala underline underline-offset-2 transition-colors"
                   >
                     сразу к форме →
                   </motion.button>
@@ -977,7 +977,7 @@ export default function App() {
                   transition={{ delay: 0.6 }}
                   className="flex flex-col gap-1"
                 >
-                  <p className="font-serif text-[1.5rem] text-white font-semibold">18+</p>
+                  <p className="font-serif text-[1.5rem] text-white font-semibold">8+</p>
                   <p className="font-serif text-[1rem] text-white/70">
                     Санкт-Петербург, Выборгское ш., 39 км
                   </p>
@@ -1127,7 +1127,7 @@ export default function App() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="font-hand text-olive text-[1.25rem] mt-8 text-center italic"
+                className="font-hand text-olive text-[1.25rem] mt-7 text-center italic"
               >
                 Время примерное, но мы постараемся не задерживать
               </motion.p>
@@ -1155,7 +1155,7 @@ export default function App() {
 
               <div className="space-y-8">
                 <div>
-                  <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">
+                  <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-1.3">
                     Что надеть
                   </p>
                   <p className="font-serif text-chocolate/80 text-[1.4rem] mb-3">
@@ -1176,7 +1176,7 @@ export default function App() {
                   <p className="font-serif text-chocolate font-semibold text-[1.75rem] mb-2">
                     Подарки
                   </p>
-                  <p className="font-serif text-chocolate/80 text-[1.3rem]">
+                  <p className="font-serif text-chocolate/80 text-[1.15rem]">
                     Мы мечтаем о большом путешествии и маленьком гнездышке. Благодарны любому вкладу, который приблизит
                     нас к этому.
                     Будем признательны, если вместо цветов вы подарите нам бутылочку вашего любимого напитка. Пусть наш домашний бар пополняется вашими вкусами!
