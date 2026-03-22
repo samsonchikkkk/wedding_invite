@@ -3,6 +3,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #1e1e2f; /* цвет фона, совпадающий с фоном приложения */
+}
+
 body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
