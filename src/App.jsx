@@ -431,7 +431,7 @@ export default function App() {
   return (
     <div className="min-h-screen w-full bg-neutral-800 flex items-center justify-center p-0 md:p-8">
       <div
-        className="h-screen md:h-[85vh] md:max-h-[800px] w-full md:w-[390px] md:rounded-[3rem] md:shadow-2xl md:border-[12px] md:border-neutral-900 overflow-hidden bg-cream touch-pan-y relative"
+        className="min-h-screen md:min-h-0 md:h-[85vh] md:max-h-[800px] w-full md:w-[390px] md:rounded-[3rem] md:shadow-2xl md:border-[12px] md:border-neutral-900 overflow-hidden bg-cream touch-pan-y relative"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
