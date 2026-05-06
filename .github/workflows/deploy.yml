@@ -18,6 +18,6 @@ jobs:
       - run: npm run build
       - uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
+          github_token: ${{ secrets.ACTIONS_DEPLOY_TOKEN2 }}
           publish_dir: ./dist
           force_orphan: true
