@@ -1291,7 +1291,7 @@ export default function App() {
                         Придёте?
                       </h2>
                       <p className="font-hand text-marsala text-[1.25rem] mb-8 border-b-2 border-marsala/30 pb-2 inline-block">
-                        Ждём ответа до 1 мая
+                        Ждём ответа до 20 мая
                       </p>
                       <div className="flex flex-col gap-4">
                         <button
